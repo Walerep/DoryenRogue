@@ -7,8 +7,6 @@ mod level;
 mod light;
 mod noise;
 
-use std::borrow::BorrowMut;
-
 use doryen_rs::{App, AppOptions, Color, Console, DoryenApi, Engine, TextAlign, UpdateEvent};
 
 use entity::Entity;
@@ -17,11 +15,9 @@ use player::Player;
 
 // consts
 const CONSOLE_WIDTH: u32 = 80;
-const CONSOLE_HEIGHT: u32 = 45;
-const GAME_WIDTH: u32 = CONSOLE_WIDTH - 10;
-const GAME_HEIGHT: u32 = CONSOLE_HEIGHT;
-const HUD_WIDTH: u32 = CONSOLE_WIDTH - GAME_WIDTH - 1;
-const HUD_HEIGHT: u32 = CONSOLE_HEIGHT - 2;
+const CONSOLE_HIEGHT: u32 = 45;
+const HUD_WIDTH: u32 = 20;
+const HUD_HEIGHT: u32 = CONSOLE_HIEGHT - 2;
 const PLAYER_SPEED: f32 = 0.2;
 const PLAYER_FOV_RADIUS: usize = 40;
 
@@ -39,14 +35,12 @@ struct DoryenRogue {
     mouse_pos: (f32, f32),
     level: Level,
     loaded: bool,
-    game: Console,
     hud: Console,
     alpha: f32,
 }
 
 impl DoryenRogue {
     pub fn new() -> Self {
-        let mut game = Console::new(GAME_WIDTH, GAME_HEIGHT);
         let mut hud = Console::new(HUD_WIDTH, HUD_HEIGHT);
         for y in 0..HUD_HEIGHT as i32 {
             for x in 0..HUD_WIDTH as i32 {
@@ -55,15 +49,12 @@ impl DoryenRogue {
         }
         hud.print((HUD_WIDTH / 2) as i32, 0, "SOME HUD", TextAlign::Center, None, None);
 
-        game.print((GAME_WIDTH - 1) as i32, (GAME_WIDTH / 2) as i32, "Game", TextAlign::Center, None, None);
-
         Self {
             player: Player::new(PLAYER_SPEED),
             entities: Vec::new(),
             mouse_pos: (0.0, 0.0),
             level: Level::new("src/level"),
             loaded: false,
-            game: game,
             hud: hud,
             alpha: 1.0,
         }
@@ -72,16 +63,6 @@ impl DoryenRogue {
         for entity in self.entities.iter() {
             if self.level.is_in_fov(entity.pos) {
                 entity.render(_api, &self.level);
-            }
-        }
-        let player_pos = self.player.pos();
-        let player_light = self.level.light_at(player_pos);
-        self.player.render(_api, player_light);
-    }
-    fn render_entities_to_blitz(&self, _api: &mut dyn DoryenApi, con: &mut Console) {
-        for entity in self.entities.iter() {
-            if self.level.is_in_fov(entity.pos) {
-                entity.render_to_blitz(&self.game, &self.level);
             }
         }
         let player_pos = self.player.pos();
@@ -136,14 +117,12 @@ impl Engine for DoryenRogue {
     fn render(&mut self, _api: &mut dyn DoryenApi) {
         if self.loaded {
             self.clear_con(_api);
-            //self.level.render(_api, self.player.pos());
-            self.level.render_to_blitz(&mut self.game, self.player.pos());
-            //self.render_entities(_api);
-            self.render_entities_to_blitz(_api, self.game);
+            self.level.render(_api, self.player.pos());
+            self.render_entities(_api);
             let fps = _api.fps();
             _api.con().print_color(
                 (CONSOLE_WIDTH / 2) as i32, 
-                (CONSOLE_HEIGHT - 2) as i32, 
+                (CONSOLE_HIEGHT - 2) as i32, 
                 &format!(
                     "#[white]Move with #[red]arrows or WASD #[white] {:4} fps", fps
                 ), 
@@ -153,22 +132,15 @@ impl Engine for DoryenRogue {
         } else {
             _api.con().print_color(
                 (CONSOLE_WIDTH / 2) as i32, 
-                (CONSOLE_HEIGHT / 2) as i32, 
+                (CONSOLE_HIEGHT / 2) as i32, 
                 "#[white] Loading#[red]....", 
                 TextAlign::Center, 
                 None,
             );
         }
-        self.game.blit(
-            0, 
-            0, 
-            _api.con(), 
-            self.alpha, 
-            self.alpha, 
-            None);
         self.hud.blit(
             (CONSOLE_WIDTH - HUD_WIDTH - 1) as i32, 
-            (CONSOLE_HEIGHT - HUD_HEIGHT - 1) as i32, 
+            (CONSOLE_HIEGHT - HUD_HEIGHT - 1) as i32, 
             _api.con(), 
             self.alpha, 
             self.alpha, 

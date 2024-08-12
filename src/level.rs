@@ -1,5 +1,5 @@
 use doryen_fov::{FovAlgorithm, FovRestrictive, MapData};
-use doryen_rs::{color_blend, Color, Console, DoryenApi, Image};
+use doryen_rs::{color_blend, Color, DoryenApi, Image};
 
 use crate::entity::Entity;
 use crate::light::{Light, LIGHT_COEF};
@@ -119,36 +119,6 @@ impl Level {
                 }
             }
             self.render_output.blit_2x(&mut con, 0, 0, 0, 0, None, None, None);
-        }
-    }
-    pub fn render_to_blitz(&mut self, con: &mut Console, player_pos: (i32, i32)) {
-        if self.ground.try_load() {
-            self.compute_lightmap(player_pos);
-            //let mut con = api.con();
-            for y in 0..self.size.1 as usize * 2 {
-                for x in 0..self.size.0 as usize * 2 {
-                    let off = self.offset_2x((x as i32, y as i32));
-                    if self.map.is_in_fov(x, y) && (self.map.is_transparent(x, y) || !self.visited_2x[off]) {
-                        self.visited_2x[off] = true;
-                        let ground_col = self.ground.pixel(x as u32, y as u32).unwrap();
-                        let light_col = self.lightmap.pixel(x as u32, y as u32).unwrap();
-                        let mut r = f32::from(ground_col.0) * f32::from(light_col.0) * LIGHT_COEF / 255.0;
-                        let mut g = f32::from(ground_col.1) * f32::from(light_col.1) * LIGHT_COEF / 255.0;
-                        let mut b = f32::from(ground_col.2) * f32::from(light_col.2) * LIGHT_COEF / 255.0;
-                        r = r.min(255.0);
-                        g = g.min(255.0);
-                        b = b.min(255.0);
-                        self.render_output.put_pixel(x as u32, y as u32, (r as u8, g as u8, b as u8, 255));
-                    } else if self.visited_2x[off] {
-                        let col = self.ground.pixel(x as u32, y as u32).unwrap();
-                        let dark_col = color_blend(col, VISITED_BLEND_COLOR, VISITED_BLEND_COEF);
-                        self.render_output.put_pixel(x as u32, y as u32, dark_col);
-                    } else {
-                        self.render_output.put_pixel(x as u32, y as u32, (0, 0, 0, 255));
-                    }
-                }
-            }
-            self.render_output.blit_2x(con, 0, 0, 0, 0, None, None, None);
         }
     }
     pub fn is_in_fov(&self, pos: (i32, i32)) -> bool {
