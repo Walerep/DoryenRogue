@@ -1,0 +1,8 @@
+[package]
+name = "DoryenRogue"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+doryen-rs = { git = "https://github.com/jice-nospam/doryen-rs.git", branch = "master" }
+doryen-fov = { git = "https://github.com/jice-nospam/doryen-fov.git", branch = "master" }
