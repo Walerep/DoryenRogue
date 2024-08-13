@@ -2,7 +2,7 @@ use doryen_fov::{FovAlgorithm, MapData};
 use doryen_rs::{color_add, color_blend, color_scale, Color, Image};
 
 use crate::noise::simplex;
-use crate::BLACK;
+use super::config::BLACK;
 
 pub const LIGHT_COEF: f32 = 1.5;
 
