@@ -59,6 +59,7 @@ impl Player {
         let oldy =self.pos.1 as i32;
 
         if api.input().key(ScanCode::LShift) {
+            // sprint by LShift
             self.pos.0 += self.speed * 2 * mov.0 /*as f32 * coef */;
             self.pos.1 += self.speed * 2 * mov.1 /*as f32 * coef */;
         } else {
