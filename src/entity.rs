@@ -7,12 +7,14 @@ use crate::light::{Light, LIGHT_COEF};
 // basic struct of entity
 pub struct Entity {
     // ascii char for this entity
-    ch: u16,
+    pub ch: u16,
     // position on map (x, y)
     pub pos: (i32, i32),
     pub name: String,
-    color: Color,
-    light: bool,
+    pub color: Color,
+    pub light: bool,
+
+    pub speed:i32,
 }
 
 impl Entity {
@@ -24,6 +26,7 @@ impl Entity {
             name: "goblin".to_owned(),
             color: (80, 15, 70, 255),
             light: false,
+            speed: 1,
         }
     }
     // create new light entity
@@ -34,6 +37,7 @@ impl Entity {
             name: "a torch".to_owned(),
             color: (150, 174, 27, 255),
             light: true,
+            speed: 0,
         }
     }
     // render entity and give it a light if it should
