@@ -4,13 +4,13 @@ use doryen_rs::{Console, DoryenApi, Engine, TextAlign, UpdateEvent};
 use super::config::{
     CONSOLE_WIDTH, CONSOLE_HIEGHT,
     HUD_WIDTH, HUD_HEIGHT, 
-    PLAYER_SPEED, PLAYER_FOV_RADIUS,
+    PLAYER_FOV_RADIUS,
     WHITE, BLACK, RED, BLUE,
 };
 
 use super::entity::Entity;
+use super::entity::Entity as Player;
 use super::level::Level;
-use super::player::Player;
 
 /* main struct of game
    must include player, entities, level etc. */
@@ -35,7 +35,7 @@ impl DoryenRogue {
         hud.print((HUD_WIDTH / 2) as i32, 0, "SOME HUD", TextAlign::Center, None, None);
 
         Self {
-            player: Player::new(PLAYER_SPEED),
+            player: Player::new_player((0, 0)),
             entities: Vec::new(),
             mouse_pos: (0.0, 0.0),
             level: Level::new("src/level"),
@@ -50,9 +50,7 @@ impl DoryenRogue {
                 entity.render(_api, &self.level);
             }
         }
-        let player_pos = self.player.pos();
-        let player_light = self.level.light_at(player_pos);
-        self.player.render(_api, player_light);
+        self.player.render(_api, &self.level);
     }
     fn clear_con(&self, _api: &mut dyn DoryenApi) {
         let con = _api.con();
@@ -80,17 +78,14 @@ impl Engine for DoryenRogue {
             }
         }
         if self.loaded {
-            let mut coef = 1.0 / std::f32::consts::SQRT_2;
             let mut mov = self.player.move_from_input(_api);
             if self.level.is_wall(self.player.next_pos((mov.0, 0))) {
                 mov.0 = 0;
-                coef = 1.0;
             }
             if self.level.is_wall(self.player.next_pos((0, mov.1))) {
                 mov.1 = 0;
-                coef = 1.0;
             }
-            if self.player.move_by(mov, coef, _api) {
+            if self.player.move_by(mov,/* coef, */ _api) {
                 self.level.compute_fov(self.player.pos(), PLAYER_FOV_RADIUS);
             }
             self.mouse_pos = _api.input().mouse_pos();

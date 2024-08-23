@@ -5,7 +5,7 @@ pub const CONSOLE_WIDTH: u32 = 80;
 pub const CONSOLE_HIEGHT: u32 = 45;
 pub const HUD_WIDTH: u32 = 20;
 pub const HUD_HEIGHT: u32 = CONSOLE_HIEGHT - 2;
-pub const PLAYER_SPEED: f32 = 0.2;
+pub const PLAYER_SPEED: i32 /*f32 */ = 1; //0.2;
 pub const PLAYER_FOV_RADIUS: usize = 40;
 
 // colors
